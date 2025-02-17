@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -Wall -Wextra -std=c++17 -DWLR_USE_UNSTABLE `pkg-config --cflags sdl2 wayland-server wlroots`
-LDFLAGS = `pkg-config --libs sdl2` -lwayland-server
+LDFLAGS = `pkg-config --libs sdl2 SDL2_ttf` -lwayland-server
 
 # Use gcc for wlroots-related C compat
 C_COMPILER = gcc
