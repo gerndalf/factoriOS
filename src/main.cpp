@@ -102,6 +102,42 @@ void handleInput(bool &running, const Uint8 *keyState) {
     if (keyState[SDL_SCANCODE_D]) player.x += playerSpeed;
 }
 
+bool initSDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "SDL failed to init " << SDL_GetError() << std::endl;
+        return false;
+    }
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf failed to init " << TTF_GetError() << std::endl;
+        return false;
+    }
+    window = SDL_CreateWindow("factoriOS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window) {
+        std::cerr << "Window failed to create " << SDL_GetError() << std::endl;
+        return false; 
+    }
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) {
+        std::cerr << "Renderer failed to create " << SDL_GetError() << std::endl;
+        return false;
+    }
+    font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16);
+    if (!font) {
+        std::cerr << "Font failed to create " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+void closeSDL() {
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_Quit();
+    SDL_Quit();
+}
+
 int main() {
     std::thread compositorThread([](){
         start_compositor();
@@ -111,23 +147,7 @@ int main() {
     
 
     // init sdl
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL could not init! SDL_Error: " << SDL_GetError() << std::endl;
-        return 1;
-    }
-
-    if (TTF_Init() == -1) {
-        std::cerr << "SDL_ttf could not init !" << TTF_GetError() << std::endl;
-        return 1;
-    }
-
-    window = SDL_CreateWindow("factoriOS", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16);
-
-    if (!window | !renderer | !font) {
-        std::cerr << "SDL Resource Init Failed: " << SDL_GetError() << std::endl;
-        SDL_Quit();
+    if (!initSDL()) {
         return 1;
     }
 
@@ -170,11 +190,8 @@ int main() {
     running = false;
     monitorThread.detach();
     compositorThread.detach();
-    TTF_CloseFont(font);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    TTF_Quit();
-    SDL_Quit();
+    
+    closeSDL();
     return 0;
 }
 
