@@ -121,7 +121,7 @@ bool initSDL() {
         std::cerr << "Renderer failed to create " << SDL_GetError() << std::endl;
         return false;
     }
-    font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16);
+    font = TTF_OpenFont("/usr/share/fonts/TTF/DejaVuSans-Bold.ttf", 16);
     if (!font) {
         std::cerr << "Font failed to create " << TTF_GetError() << std::endl;
         return false;

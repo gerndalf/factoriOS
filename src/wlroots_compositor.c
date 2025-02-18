@@ -31,8 +31,15 @@ int start_compositor() {
     // event loop
     server.event_loop = wl_display_get_event_loop(server.display);
 
+    const char *socket = wl_display_add_socket_auto(server.display);
+    if(!socket) {
+        fprintf(stderr, "Failed to create Wayland socket\n");
+        wl_display_destroy(server.display);
+        return 1;
+    }
+
     // backend
-    server.backend = wlr_backend_autocreate(server.display, NULL);
+    server.backend = wlr_backend_autocreate(wl_display_get_event_loop(server.display), NULL);
     if (!server.backend) {
         fprintf(stderr, "Failed to create backend!\n");
         wl_display_destroy(server.display);
